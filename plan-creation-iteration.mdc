@@ -1,0 +1,69 @@
+---
+description: Guidelines for creating and iterating on plans in the project
+alwaysApply: false
+---
+
+# Plan Creation and Iteration Rules
+
+Guidelines for structuring, updating, and approving plans in the project.
+
+<rule>
+name: plan-creation-iteration
+description: Guidelines for creating and iterating on plans in the project
+filters:
+  # Match files that contain plan creation or iteration instructions
+  - type: content
+    pattern: "plan files are stored|split the plan into|use letters to label"
+
+actions:
+  - type: suggest
+    message: |
+      ## Plan Creation and Iteration Guidelines
+
+      ### 1. Plan Structure
+      - **Plan files are stored** in `docs/plans/` under a directory named after the plan
+      - **Split the plan** into a reasonable number of phases, each with a clear goal
+      - **Use letters** to label each phase (e.g., Phase A, Phase B, etc.)
+      - **Split phases** into deliverables, each with a clear goal
+      - **Use numbers** to label each deliverable (e.g., 1, 2, 3, etc)
+
+      ### 2. Plan Updates
+      - **Always update the plan file** with changes when iterating on a plan
+      - **Provide a complete plan** with changes included, not just a statement of intent
+
+      ### 3. Plan Approval
+      - **Never begin implementing** a plan without explicit approval
+
+      ### 4. Plan Documentation
+      - **Use the format** "Phase A: [description of phase]" and "Deliverable 1: [description of deliverable]" to clearly outline the plan
+      - **Include file names with directory** for every new file that the plan will create
+      - **Provide representative examples** of code changes in the plan. You do not need to explicitly state every code change in the plan
+      - **Update the package manifest** in the first deliverable step where the update is required if the project uses a package manifest
+
+      ### 5. Updating Plan Progress
+      - **Only add status updates** when updating plan status and progress. Do not change other contents of the plan
+
+
+examples:
+  - input: |
+      # Incomplete plan without phases or deliverables
+      Plan to improve project structure
+    output: |
+      # Complete plan with phases and deliverables
+      Phase A: Improve project structure
+      Deliverable 1: Organize files into appropriate directories
+
+  - input: |
+      # Plan update without new plan
+      I will update the plan to include new features
+    output: |
+      # Plan update with new plan
+      Updated Plan:
+      Phase A: Implement new features
+      Deliverable 1: Add feature X
+
+metadata:
+  priority: high
+  version: 1.0
+  tags: ["planning", "iteration", "documentation"]
+</rule>

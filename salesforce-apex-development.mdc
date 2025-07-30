@@ -1,0 +1,176 @@
+---
+description: Guidelines for Salesforce Apex development, testing, and file management
+alwaysApply: false
+---
+
+# Salesforce Apex Development Rules
+
+Guidelines for writing Apex code, managing metadata files, and implementing dependency injection patterns.
+
+<rule>
+name: salesforce-apex-development
+description: Guidelines for Salesforce Apex development, testing, and file management
+filters:
+  # Match Apex class files
+  - type: file_extension
+    pattern: "\\.cls$"
+  # Match Apex trigger files
+  - type: file_extension
+    pattern: "\\.trigger$"
+  # Match Apex metadata files
+  - type: file_extension
+    pattern: "\\.cls-meta\\.xml$|\\.trigger-meta\\.xml$"
+  # Match files containing Apex-related content
+  - type: content
+    pattern: "\\b(public|private|global)\\s+(class|interface|enum)\\b"
+  # Match dependency injection patterns
+  - type: content
+    pattern: "\\b(System\\.StubProvider|@TestVisible|@isTest)\\b"
+
+actions:
+  - type: suggest
+    message: |
+      ## Salesforce Apex Development Guidelines
+
+      ### 1. File Management
+      When adding a new Apex file, always follow these steps:
+      1. **Add the file** to the appropriate directory in the project
+      2. **Add a metadata .xml file** if applicable (e.g., MyClass.cls-meta.xml)
+      3. **Update the package manifest** file (package.xml) to include the new file
+
+      ### 2. Metadata File Requirements
+      - **Ensure all tags** are supported by the current version of the Salesforce API
+      - **Add a comment** to the top of the metadata file that includes a link to the documentation for the .xml file format
+      
+      Example metadata file header:
+      ```xml
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!-- Documentation: https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_classes.htm -->
+      <ApexClass xmlns="http://soap.sforce.com/2006/04/metadata">
+          <apiVersion>58.0</apiVersion>
+          <status>Active</status>
+      </ApexClass>
+      ```
+
+      ### 3. Dependency Injection Patterns
+      - **Use mutable instance variables** instead of constructor injection when possible
+
+      Example:
+      ```apex
+      // Good: Mutable instance variables
+      public class EmailService {
+          @TestVisible
+          private EmailSender emailSender = new EmailSender();
+          
+          public void setEmailSender(EmailSender sender) {
+              this.emailSender = sender;
+          }
+      }
+      
+      // Avoid: Constructor injection (when possible)
+      public class EmailService {
+          private EmailSender emailSender;
+          
+          public EmailService(EmailSender emailSender) {
+              this.emailSender = emailSender;
+          }
+      }
+      ```
+
+      ### 4. Testing and Mocking
+      - **Use direct interface implementation** for mocks instead of System.StubProvider when possible
+
+      Example:
+      ```apex
+      // Good: Direct implementation
+      @isTest
+      public class MockEmailSender implements IEmailSender {
+          public Boolean wasCalled = false;
+          
+          public void sendEmail(String recipient, String subject, String body) {
+              this.wasCalled = true;
+          }
+      }
+      
+      // Avoid: System.StubProvider (when direct implementation is feasible)
+      @isTest
+      public class EmailServiceTest {
+          @isTest
+          static void testWithStubProvider() {
+              IEmailSender mockSender = (IEmailSender) Test.createStub(
+                  IEmailSender.class, new EmailSenderStub()
+              );
+          }
+      }
+      ```
+
+examples:
+  - input: |
+      // Bad: Missing metadata file and package.xml update
+      public class NewApexClass {
+          // class implementation
+      }
+    output: |
+      // Good: Complete file setup
+      // 1. Created NewApexClass.cls
+      // 2. Created NewApexClass.cls-meta.xml with API documentation link
+      // 3. Updated package.xml to include NewApexClass
+      public class NewApexClass {
+          // class implementation
+      }
+
+  - input: |
+      // Bad: Constructor injection
+      public class EmailService {
+          private EmailSender sender;
+          public EmailService(EmailSender sender) {
+              this.sender = sender;
+          }
+      }
+    output: |
+      // Good: Mutable instance variables
+      public class EmailService {
+          @TestVisible
+          private EmailSender sender = new EmailSender();
+          
+          public void setSender(EmailSender sender) {
+              this.sender = sender;
+          }
+      }
+
+  - input: |
+      // Bad: Using System.StubProvider unnecessarily
+      @isTest
+      public class TestClass {
+          @isTest
+          static void testMethod() {
+              IService mockService = (IService) Test.createStub(
+                  IService.class, new ServiceStub()
+              );
+          }
+      }
+    output: |
+      // Good: Direct interface implementation
+      @isTest
+      public class MockService implements IService {
+          public Boolean wasCalled = false;
+          
+          public void performAction() {
+              this.wasCalled = true;
+          }
+      }
+      
+      @isTest
+      public class TestClass {
+          @isTest
+          static void testMethod() {
+              MockService mockService = new MockService();
+              // test implementation
+          }
+      }
+
+metadata:
+  priority: high
+  version: 1.0
+  tags: ["salesforce", "apex", "dependency-injection", "testing", "metadata"]
+</rule>

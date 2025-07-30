@@ -1,0 +1,244 @@
+---
+globs: *.mdc
+alwaysApply: false
+---
+
+# Cursor Rule Template
+
+Template and standards for creating consistent Cursor rule files.
+
+**Every cursor rule must begin with YAML front matter**
+
+<rule>
+name: cursor-rule-template
+description: Standard template structure for all Cursor rule files
+filters:
+  # Match any .mdc files being created or modified
+  - type: file_extension
+    pattern: "\\.mdc$"
+  # Match files that look like Cursor rules
+  - type: content
+    pattern: "(?s)<rule>.*?</rule>"
+  # Match file creation and modification events
+  - type: event
+    pattern: "file_create|file_modify"
+
+actions:
+  - type: reject
+    conditions:
+      - pattern: "^(?!---)"
+        message: "❌ CRITICAL ERROR: Rule file MUST start with '---' on line 1. Current file does not start with YAML front matter."
+      - pattern: "^[^\\n]*\\n[^\\n]*\\n(?!---)"
+        message: "❌ CRITICAL ERROR: Missing closing '---' for YAML front matter. Front matter must be properly closed."
+      - pattern: "^---[\\s\\S]*?---[\\s\\S]*?name:"
+        message: "❌ ERROR: Do not include 'name:' field in YAML front matter. The name belongs only inside the <rule> block."
+
+  - type: suggest
+    message: |
+      ## 🔴 CRITICAL: YAML Front Matter MUST Be First
+
+      **Every Cursor rule file MUST start with YAML front matter on line 1:**
+
+      ```yaml
+      ---
+      description: Brief Description of Rule
+      alwaysApply: false
+      ---
+      ```
+
+      ### ⚠️ Common Mistakes That Break Rules:
+      1. **❌ Wrong:** Placing front matter at the end of the file
+      2. **❌ Wrong:** Starting with `# Title` instead of `---`
+      3. **❌ Wrong:** Including `name:` field in front matter
+      4. **❌ Wrong:** Missing `description:` or `alwaysApply:` fields
+      5. **❌ Wrong:** No blank line after closing `---`
+
+      ### ✅ Correct Structure (ALWAYS use this exact order):
+      ```markdown
+      ---
+      description: Brief Description of Rule
+      alwaysApply: false
+      ---
+
+      # Rule Title
+
+      Brief description of what this rule does.
+
+      <rule>
+      name: rule-name-in-kebab-case
+      ...
+      </rule>
+      ```
+
+      After the front matter, include a Markdown H1 title, a brief description, and then the <rule> block. The full template is:
+
+      ```markdown
+      ---
+      description: Brief Description of Rule
+      alwaysApply: false
+      ---
+
+      # Rule Title
+
+      Brief description of what this rule does and its purpose.
+
+      <rule>
+      name: rule-name-in-kebab-case
+      description: Detailed description of the rule's functionality
+      filters:
+        # Define what files/events this rule applies to
+        - type: file_extension
+          pattern: "\\.(js|ts|jsx|tsx)$"
+        - type: content
+          pattern: "specific-pattern-to-match"
+        - type: event
+          pattern: "file_create|file_modify"
+
+      actions:
+        - type: reject
+          conditions:
+            - pattern: "pattern-to-reject"
+              message: "Explanation of why this pattern is rejected"
+
+        - type: suggest
+          message: |
+            Detailed suggestions for proper usage:
+
+            1. First guideline with example:
+               ```
+               // Good example
+               const goodExample = 'value';
+               ```
+
+            2. Second guideline:
+               - Sub-point one
+               - Sub-point two
+
+            3. Directory structure (if applicable):
+               ```
+               PROJECT_ROOT/
+               ├── proper/
+               │   └── structure/
+               └── ...
+               ```
+
+      examples:
+        - input: |
+            # Bad example
+            const badExample = 'wrong';
+          output: "Corrected example with explanation"
+
+        - input: |
+            # Good example
+            const goodExample = 'correct';
+          output: "This follows the rule correctly"
+
+      metadata:
+        priority: high|medium|low
+        version: 1.0
+        tags: ["category", "subcategory"]
+        author: "Rule Author Name"
+      </rule>
+      ```
+
+      ## 📋 Step-by-Step Creation Checklist:
+
+      **Before writing ANY content, follow this exact sequence:**
+
+      ### Step 1: Start with YAML Front Matter (Lines 1-4)
+      ```yaml
+      ---
+      description: Brief Description of Rule
+      alwaysApply: false
+      ---
+      ```
+
+      ### Step 2: Add Blank Line (Line 5)
+      ```
+      
+      ```
+
+      ### Step 3: Add Title (Line 6)
+      ```markdown
+      # Rule Title
+      ```
+
+      ### Step 4: Add Description (Line 8+)
+      ```markdown
+      Brief description of what this rule does.
+      ```
+
+      ### Step 5: Add Rule Block
+      ```markdown
+      <rule>
+      name: rule-name-in-kebab-case
+      description: Detailed description
+      filters: [...]
+      actions: [...]
+      examples: [...]
+      metadata: [...]
+      </rule>
+      ```
+
+      ## ✅ Required Elements (in exact order):
+
+      1. **YAML Front Matter** (MUST be first): Include `description` and `alwaysApply: false`
+      2. **Blank Line**: Required separator after front matter
+      3. **H1 Title**: Clear title matching the rule purpose
+      4. **Description**: Brief explanation of the rule's purpose
+      5. **Rule Block**: Complete `<rule>` block with all required fields
+      6. **Name**: Use kebab-case for rule names (inside `<rule>` only)
+      7. **Filters**: Define what triggers the rule
+      8. **Actions**: Define what the rule does (reject, suggest, etc.)
+      9. **Examples**: Provide both good and bad examples
+      10. **Metadata**: Include priority, version, and optional tags/author
+
+      ## Naming Conventions:
+
+      - **File names**: Use kebab-case with .mdc extension (e.g., `my-rule-name.mdc`)
+      - **Rule names**: Match filename without extension
+      - **Descriptions**: Be concise but descriptive
+      - **Patterns**: Use proper regex escaping
+
+      ## Best Practices:
+
+      - Keep rules focused on a single concern
+      - Provide clear, actionable suggestions
+      - Include both positive and negative examples
+      - Use appropriate priority levels
+      - Test patterns thoroughly before deployment
+
+examples:
+  - input: |
+      # Incomplete rule missing metadata and front matter
+      <rule>
+      name: incomplete-rule
+      description: Basic rule
+      </rule>
+    output: "Rule should include YAML front matter, filters, actions, examples, and metadata sections"
+
+  - input: |
+      # Well-formed rule following template
+      ---
+      description: Example Rule
+      alwaysApply: false
+      ---
+      # Example Rule
+      <rule>
+      name: example-rule
+      description: Complete rule with all sections
+      filters: [...]
+      actions: [...]
+      examples: [...]
+      metadata:
+        priority: medium
+        version: 1.0
+      </rule>
+    output: "Rule follows the standard template correctly, including YAML front matter at the top"
+
+metadata:
+  priority: high
+  version: 1.3
+  tags: ["template", "standards", "documentation"]
+  author: "Cursor Rules Repo"
+</rule>

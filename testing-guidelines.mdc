@@ -1,0 +1,115 @@
+---
+description: General guidelines for writing and maintaining tests
+alwaysApply: false
+---
+
+# Testing Guidelines
+
+General best practices for writing clear, maintainable, and effective tests.
+
+<rule>
+name: testing-guidelines
+description: General guidelines for writing and maintaining tests
+filters:
+  # Match test files
+  - type: file_extension
+    pattern: "\\.(test|spec)\\.(js|ts|jsx|tsx|py|java|cls|cs|php|rb|go|rs|swift|kt)$"
+  # Match test directories
+  - type: file_path
+    pattern: "(test|tests|spec|specs|__tests__)/"
+  # Match files with test annotations or imports
+  - type: content
+    pattern: "@(Test|isTest)|\\b(describe|it|test|expect|assert|should)\\b"
+  # Match assertion patterns
+  - type: content
+    pattern: "\\b(assertEquals|assertEqual|expect|assert|should)\\b.*\\b(equal|match|contain)\\b"
+
+actions:
+  - type: suggest
+    message: |
+      ## Testing Guidelines
+
+      ### 1. Assertion Message Clarity
+      - **When comparing strings**, always include the expected and actual values in the assertion message
+      - This makes it immediately clear what the test is checking and why it failed
+      - Helps with debugging by showing exactly what was expected vs what was received
+
+      ### Examples of Clear Assertion Messages:
+
+      #### String Comparisons
+      ```javascript
+      // Good: Clear assertion message with expected and actual values
+      expect(result).toBe(expectedValue, 
+        `Expected result to be "${expectedValue}" but got "${result}"`);
+      
+      // Good: Using template literals for clarity
+      assert.equal(actualName, expectedName, 
+        `Expected name to be "${expectedName}", but got "${actualName}"`);
+      ```
+
+      #### Apex Testing (Salesforce)
+      ```apex
+      // Good: Clear assertion message
+      System.assertEquals(expectedEmail, actualEmail, 
+        'Expected email to be "' + expectedEmail + '" but got "' + actualEmail + '"');
+      
+      // Good: Descriptive failure message
+      System.assert(result.contains('success'), 
+        'Expected result to contain "success", but got: ' + result);
+      ```
+
+      #### Python Testing
+      ```python
+      # Good: Clear assertion message
+      self.assertEqual(actual_value, expected_value,
+        f'Expected value to be "{expected_value}" but got "{actual_value}"')
+      
+      # Good: Descriptive assertion
+      self.assertIn('expected_substring', actual_string,
+        f'Expected "{actual_string}" to contain "expected_substring"')
+      ```
+
+      ### Best Practices for Test Assertions:
+
+      ✅ **Do:**
+      - Include both expected and actual values in assertion messages
+      - Use descriptive messages that explain what is being tested
+      - Make failure messages immediately understandable
+      - Use template literals or string formatting for readability
+      
+      ❌ **Don't:**
+      - Use generic assertion messages like "values should match"
+      - Leave assertion messages empty
+      - Use unclear variable names in messages
+      - Make developers guess what the test was checking
+
+examples:
+  - input: |
+      # Bad: No assertion message
+      expect(userName).toBe('john_doe');
+    output: |
+      # Good: Clear assertion message with expected and actual values
+      expect(userName).toBe('john_doe', 
+        `Expected userName to be "john_doe" but got "${userName}"`);
+
+  - input: |
+      # Bad: Generic assertion message
+      assert.equal(result, expected, 'values should match');
+    output: |
+      # Good: Specific assertion message showing expected and actual
+      assert.equal(result, expected, 
+        `Expected result to be "${expected}" but got "${result}"`);
+
+  - input: |
+      # Bad: Unclear Apex assertion
+      System.assertEquals(expectedStatus, actualStatus);
+    output: |
+      # Good: Clear Apex assertion with descriptive message
+      System.assertEquals(expectedStatus, actualStatus, 
+        'Expected status to be "' + expectedStatus + '" but got "' + actualStatus + '"');
+
+metadata:
+  priority: high
+  version: 1.0
+  tags: ["testing", "assertions", "debugging", "clarity"]
+</rule>

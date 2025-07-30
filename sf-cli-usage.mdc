@@ -1,0 +1,102 @@
+---
+description: Guidelines for using the Salesforce CLI (sf) tool in development workflows
+alwaysApply: false
+---
+
+# Salesforce CLI (sf) Usage Rules
+
+Guidelines for using the Salesforce CLI (sf) tool in development workflows based on project standards.
+
+<rule>
+name: sf-cli-usage
+description: Guidelines for using the Salesforce CLI (sf) tool in development workflows
+filters:
+  # Match files that contain sf CLI commands
+  - type: content
+    pattern: "\\bsf\\s+(apex|project|org|data|schema)"
+  # Match shell scripts that use sf commands
+  - type: file_extension
+    pattern: "\\.(sh|bash)$"
+  # Match documentation mentioning sf commands
+  - type: content
+    pattern: "\\bsfdx\\b|\\bsf\\b.*\\b(deploy|test|run|org|apex)\\b"
+
+actions:
+  - type: suggest
+    message: |
+      ## Salesforce CLI (sf) Usage Guidelines
+
+      ### 1. Command Preference
+      - **Always use the newer 'sf' CLI commands instead of the older 'sfdx' commands**
+      - The sf CLI is the modern, supported version
+
+      ### 2. Parameter Usage
+      - Use `--dir-path` instead of `--source-path` (not supported in sf CLI)
+      - Example: `sf project deploy start --dir-path force-app/main/default/classes/`
+
+      ### 3. Preferred Commands
+
+      #### Testing
+      ```bash
+      # Run a single test class
+      sf apex run test --tests CLASS_NAME --result-format human --synchronous
+      
+      # Run code coverage (synchronous, not asynchronous)
+      sf apex test run --synchronous
+      # Don't use the --wait flag for code coverage reports
+      ```
+
+      #### Deployment
+      ```bash
+      # Deploy a single file
+      sf project deploy start --source-dir path/to/file
+      
+      # Deploy using manifest file
+      sf project deploy start --manifest package.xml
+      ```
+
+      #### Logging
+      ```bash
+      # Tail apex logs with debug level
+      sf apex log tail --debug-level SFDC_DevConsole
+      ```
+
+      ### 4. Testing Guidelines
+      - **Only test code coverage at the end of the development process, not during development**
+      - Run code coverage tests synchronously using the `--synchronous` flag
+      - The test script is located at `scripts/run_all_tests.sh` (runs tests only, no coverage)
+      - All deploys use the manifest file (package.xml) or individual files
+
+      ### 5. Development Workflow
+      - Get confirmation that all tests pass before moving to the next step
+      - Review code changes in detail only after all tests pass
+
+examples:
+  - input: |
+      # Bad: Using old sfdx commands
+      sfdx force:apex:test:run --testlevel RunLocalTests
+      sfdx force:source:deploy --sourcepath force-app/
+    output: |
+      # Good: Using modern sf commands
+      sf apex test run --test-level RunLocalTests --synchronous
+      sf project deploy start --dir-path force-app/
+
+  - input: |
+      # Bad: Using unsupported parameter
+      sf project deploy start --source-path force-app/main/default/classes/
+    output: |
+      # Good: Using correct parameter
+      sf project deploy start --dir-path force-app/main/default/classes/
+
+  - input: |
+      # Bad: Asynchronous code coverage
+      sf apex test run --wait 10
+    output: |
+      # Good: Synchronous code coverage
+      sf apex test run --synchronous
+
+metadata:
+  priority: high
+  version: 1.0
+  tags: ["salesforce", "cli", "sf", "testing", "deployment"]
+</rule>

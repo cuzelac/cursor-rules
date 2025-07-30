@@ -1,0 +1,128 @@
+---
+description: Code style and consistency standards for the project
+alwaysApply: false
+---
+
+# Code Style Standards
+
+Guidelines for maintaining code style, comments, and consistency across the project.
+
+<rule>
+name: code-style-standards
+description: Code style and consistency standards for the project
+filters:
+  # Match all code files
+  - type: file_extension
+    pattern: "\\.(js|ts|jsx|tsx|py|java|cls|trigger|apex|cs|cpp|c|h|php|rb|go|rs|swift|kt)$"
+  # Match commit message files
+  - type: file_path
+    pattern: "COMMIT_EDITMSG|commit-msg"
+  # Match files with TODO comments
+  - type: content
+    pattern: "\\bTODO\\b|\\bFIXME\\b|\\bHACK\\b"
+  # Match files with existing comments
+  - type: content
+    pattern: "//.*|/\\*[\\s\\S]*?\\*/|#.*|<!--[\\s\\S]*?-->"
+  # Match file operations and git commands
+  - type: content
+    pattern: "\\b(mv|rename|git\\s+mv)\\b"
+
+actions:
+  - type: reject
+    conditions:
+      - pattern: "(?i)commit.*[\\u{1F600}-\\u{1F64F}\\u{1F300}-\\u{1F5FF}\\u{1F680}-\\u{1F6FF}\\u{1F1E0}-\\u{1F1FF}]"
+        message: "❌ Do not use emoji in commit messages. Emoji are only allowed in README files."
+
+  - type: suggest
+    message: |
+      ## Code Style Standards
+
+      ### 1. TODO Comment Policy
+      - **Never remove TODO comments** unless you have completed the task
+      - TODO comments serve as important reminders and should remain until resolved
+      - If you complete a TODO task, remove the comment and implement the solution
+
+      ### 2. Emoji Usage Policy
+      - **Never use emoji** in commit messages or code comments
+      - **Emoji are only allowed** in README files for documentation purposes
+      - Keep commit messages and code comments professional and text-based
+
+      ### 3. Whitespace Consistency
+      - **Maintain existing whitespace** between blocks when editing code
+      - Preserve the current formatting and indentation style
+      - Ensure readability and consistency across the codebase
+
+      ### 4. Comment Preservation
+      - **Maintain existing comments** when editing code unless functionality changes
+      - **Update comments** if you change the functionality they describe
+      - Comments should accurately reflect the current behavior of the code
+
+      ### 5. File Renaming Policy
+      - **When renaming files, use 'git mv'** to preserve history
+      - This maintains the file's version control history across renames
+      - Example: `git mv old-filename.js new-filename.js`
+
+      ### Guidelines for Code Changes:
+      
+      ✅ **Do:**
+      - Preserve existing formatting and whitespace
+      - Keep TODO comments until tasks are completed
+      - Update comments when changing functionality
+      - Use text-only commit messages
+      - Use `git mv` when renaming files
+      
+      ❌ **Don't:**
+      - Remove TODO comments without completing the task
+      - Add emoji to commit messages or code comments
+      - Change existing whitespace unnecessarily
+      - Leave outdated comments after changing functionality
+      - Rename files without using `git mv`
+
+examples:
+  - input: |
+      # Bad: Removing TODO without completing task
+      // TODO: Implement error handling
+      function processData() {
+          // removed TODO but no error handling added
+          return data;
+      }
+    output: |
+      # Good: Keep TODO until task is completed
+      // TODO: Implement error handling
+      function processData() {
+          // TODO remains until error handling is implemented
+          return data;
+      }
+
+  - input: |
+      # Bad: Emoji in commit message
+      git commit -m "✨ Add new feature 🚀"
+    output: |
+      # Good: Text-only commit message
+      git commit -m "Add new feature"
+
+  - input: |
+      # Bad: Outdated comment after functionality change
+      // Returns user name
+      function getUserData() {
+          return { name: user.name, email: user.email, id: user.id };
+      }
+    output: |
+      # Good: Updated comment to match functionality
+      // Returns user data object with name, email, and id
+      function getUserData() {
+          return { name: user.name, email: user.email, id: user.id };
+      }
+
+  - input: |
+      # Bad: Renaming file without preserving history
+      mv old-component.js new-component.js
+    output: |
+      # Good: Using git mv to preserve history
+      git mv old-component.js new-component.js
+
+metadata:
+  priority: medium
+  version: 1.0
+  tags: ["style", "comments", "consistency", "formatting"]
+</rule>
