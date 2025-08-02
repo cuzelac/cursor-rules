@@ -1,0 +1,154 @@
+---
+globs: *.rb
+alwaysApply: false
+---
+# Ruby YARD Documentation Standards
+
+<rule>
+name: ruby-yard-documentation
+description: Standards for YARD documentation in Ruby libraries and classes
+filters:
+  # Match Ruby files
+  - type: file_extension
+    pattern: "\\.rb$"
+  # Match class and module definitions
+  - type: content
+    pattern: "(?m)^\\s*(class|module)\\s+\\w+"
+  # Match method definitions
+  - type: content
+    pattern: "(?m)^\\s*def\\s+\\w+"
+
+actions:
+  - type: require
+    conditions:
+      - pattern: "(?m)^\\s*(class|module)\\s+\\w+"
+        message: "All Ruby classes and modules must have YARD documentation"
+        suggestion: |
+          Add YARD documentation above the class/module:
+          ```ruby
+          # Brief description of what this class/module does.
+          # Provide additional context if needed.
+          class YourClass
+          ```
+
+  - type: require
+    conditions:
+      - pattern: "(?m)^\\s*def\\s+(\\w+)"
+        exclude_pattern: "(?m)^\\s*#.*@"
+        message: "All public methods must have YARD documentation"
+        suggestion: |
+          Add YARD documentation above the method:
+          ```ruby
+          # Brief description of what this method does.
+          # @param param_name [Type] Description of the parameter
+          # @return [Type] Description of the return value
+          # @raise [ExceptionType] When this exception is raised
+          def your_method(param_name)
+          ```
+
+  - type: suggest
+    message: |
+      YARD Documentation Standards:
+
+      ## Required Elements
+
+      ### Classes and Modules
+      ```ruby
+      # Brief, clear description of the class/module purpose.
+      # Additional context or usage examples if helpful.
+      class MyClass
+      ```
+
+      ### Methods
+      ```ruby
+      # Brief description of what the method does.
+      # @param name [String] The user's name
+      # @param age [Integer] The user's age (optional)
+      # @return [Hash] User information hash
+      # @raise [ArgumentError] If name is empty
+      def create_user(name, age = nil)
+      ```
+
+      ## YARD Tags to Use
+
+      - `@param name [Type] description` - Method parameters
+      - `@return [Type] description` - Return value
+      - `@raise [ExceptionType] description` - Exceptions raised
+      - `@example` - Usage examples for complex methods
+      - `@see` - References to related methods/classes
+      - `@since` - Version when added (for public APIs)
+      - `@deprecated` - Mark deprecated methods
+
+      ## Style Guidelines
+
+      1. **Be Concise**: One line description preferred
+      2. **Be Clear**: Avoid jargon, explain the "what" and "why"
+      3. **Document All Public Methods**: Private methods should have docs for complex logic
+      4. **Use Proper Types**: String, Integer, Array<String>, Hash{Symbol => String}, etc.
+      5. **Document Exceptions**: Always document what exceptions can be raised
+      6. **Include Examples**: For complex methods, provide usage examples
+
+      ## Examples
+
+      ### Simple Method
+      ```ruby
+      # Calculates the total price including tax.
+      # @param base_price [Float] The base price before tax
+      # @param tax_rate [Float] The tax rate as a decimal (e.g., 0.08 for 8%)
+      # @return [Float] The total price including tax
+      def calculate_total(base_price, tax_rate)
+        base_price * (1 + tax_rate)
+      end
+      ```
+
+      ### Complex Method with Example
+      ```ruby
+      # Processes a batch of files and returns results.
+      # @param file_paths [Array<String>] List of file paths to process
+      # @param options [Hash] Processing options
+      # @option options [Boolean] :recursive (false) Process subdirectories
+      # @option options [String] :format ('json') Output format
+      # @return [Hash] Processing results with success/failure counts
+      # @raise [ArgumentError] If file_paths is empty
+      # @raise [IOError] If files cannot be read
+      # @example
+      #   results = process_files(['file1.txt', 'file2.txt'], recursive: true)
+      #   puts results[:success_count] # => 2
+      def process_files(file_paths, options = {})
+      ```
+
+      ### Class Documentation
+      ```ruby
+      # Client for interacting with external APIs.
+      # Handles authentication, request/response processing, and error handling.
+      # Supports both synchronous and asynchronous operations.
+      class ApiClient
+      ```
+
+examples:
+  - input: |
+      class UserService
+        def create_user(name, email)
+          # implementation
+        end
+      end
+    output: |
+      # Service for managing user operations.
+      # Handles user creation, validation, and persistence.
+      class UserService
+        # Creates a new user with the provided information.
+        # @param name [String] The user's full name
+        # @param email [String] The user's email address
+        # @return [User] The created user object
+        # @raise [ArgumentError] If name or email is invalid
+        def create_user(name, email)
+          # implementation
+        end
+      end
+
+metadata:
+  priority: medium
+  version: 1.0
+  applies_to: ["lib/**/*.rb", "app/**/*.rb"]
+  excludes: ["spec/**/*.rb", "test/**/*.rb"]
+</rule>
