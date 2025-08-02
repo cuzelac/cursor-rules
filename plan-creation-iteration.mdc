@@ -42,6 +42,7 @@ actions:
 
       ### 5. Updating Plan Progress
       - **Only add status updates** when updating plan status and progress. Do not change other contents of the plan
+      - **Use an emoji checkmark (✅) at the beginning of completed items instead of '(**COMPLETE**)'**
 
 
 examples:
